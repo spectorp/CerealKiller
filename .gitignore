@@ -1,0 +1,10 @@
+
+db_password
+db_user
+
+data/
+img/
+
+*.txt
+*.jpg
+*.png
