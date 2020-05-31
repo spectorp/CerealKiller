@@ -8,3 +8,5 @@ img/
 *.txt
 *.jpg
 *.png
+
+.ipynb_checkpoints
