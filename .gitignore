@@ -1,9 +1,9 @@
 
-db_password
-db_user
+db_info
 
 data/
 img/
+notebooks/.ipynb_checkpoints
 
 *.txt
 *.jpg
