@@ -1,0 +1,150 @@
+/* basic elements */
+html {
+	margin: 0;
+	padding: 0;
+	overflow-x: hidden;
+	}
+body {
+	font: normal normal  13px "Arial", sans-serif;
+	color: white;
+	background-color: #2f2f2f;
+	margin: 0;
+	padding: 0;
+	}
+p {
+	font: normal normal bold 13px "Arial", sans-serif;
+	margin-top: 0;
+	text-align: justify;
+	margin-bottom: 5px;
+	}
+p.indent { padding-left: 2em; }
+
+h3 {
+	font: normal normal 14px "Arial Black", sans-serif;
+	margin-bottom: 10px;
+	text-align: justify;
+	}
+a:link {
+	font: 13px "Arial";
+	font-weight: bold;
+	text-decoration: none;
+	color: #1a1aa3;
+	}
+
+a:visited {
+	font-weight: bold;
+	text-decoration: none;
+	color: #1a1aa3;
+	}
+
+footer {
+	position: absolute;
+	bottom: 0;
+	padding: 5px;
+	height: 80px;
+	width: 1000px;
+}
+
+/* These elements make up the page header */
+
+hf1 {
+	font: normal normal 65px/50px "Arial Black", sans-serif;
+	color: #444444;
+	position: relative;
+	bottom: 2px;
+	}
+
+hf2 {
+	font: normal normal 14px/14px "Arial Black", sans-serif;
+	color: #AAAAAA;
+	}
+
+hf3 {
+	font: normal normal 65px/65px "Arial Black", sans-serif;
+	color: #666666;
+	position: relative;
+	bottom: 2px;
+	}
+hf3a {
+	font: normal normal 32px/32px "Arial Black", sans-serif;
+	color: #666666;
+	position: relative;
+	bottom: 2px;
+	}
+
+
+/* divs */
+#header {
+	padding: 5px;
+	height: 80px;
+	width: 1000px;
+	}
+
+#footer {
+        padding: 5px;
+        height: 80px;
+        width: 1000px;
+        }
+
+#map{
+        width: 1000px;
+        height: 600px;
+}
+
+#smallmap{
+	width:250px;
+	height: 250px;
+}
+
+/* classes for table elements */
+/* if no class specified presumably inherits body above */
+
+.h3 {
+	font: normal normal 15px Arial, sans-serif;
+	margin-bottom: 10px;
+	text-align: justify;
+	}
+
+.standard {
+	font: normal normal 13px Arial, sans-serif;
+	}
+
+.dropdownfont {
+	font: normal normal 10px Arial, sans-serif;
+	}
+
+tr.padAbove>td {
+	padding-top: 2em;
+}
+
+
+
+/** Layout **/
+.cn-col {
+	margin: 0px;
+	padding: 0;
+	overflow: hidden;
+}
+#header.cn-col { margin-bottom: 0px; }
+
+.cn-col p { line-height: 1.4; }
+
+.cn-col p.indent { padding-left: 2em; }
+
+.cn-col hr { clear:both; margin: 10px 0; }
+
+.cn-col-full {
+	width: 1000px;
+	margin-left: auto; margin-right: auto;
+	padding: 0;
+	clear: both;
+}
+
+.cn-col-half {
+	width: 480px;
+	margin-left: 10px; margin-right: 10px;
+	float: left;
+}
+
+.cn-col-half.cn-col-first { margin-left: 0px; margin-right: 20px; }
+.cn-col-half.cn-col-last { margin-left: 20px; margin-right: 0px; }
