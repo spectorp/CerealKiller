@@ -8,5 +8,6 @@ notebooks/.ipynb_checkpoints
 *.txt
 *.jpg
 *.png
+*.pt
 
 .ipynb_checkpoints
