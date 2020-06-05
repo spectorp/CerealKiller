@@ -100,6 +100,16 @@ def get_cereal(df, ocr_words):
 
     return df.sort_values(by=['jaccard'], ascending=False)['cereal_name'].iloc[0]
 
+def find_textboxes_in_cerealbox(box, OCR_results):
+    text_in_box = []
+    for OCR_result in OCR_results:
+        # consider text box to be in cereal bounding box only if all x-y coordinates are within cereal box
+        xcoords = OCR_result[1][:,0]
+        ycoords = OCR_result[1][:,1]
+        if np.all((xcoords > box[0]) & (xcoords < box[2]) & (ycoords > box[1]) & (ycoords < box[3])):
+            text_in_box.append(OCR_result)
+    return text_in_box
+
 def predict(img, df):
     # convert to PyTorch tensor and unsqueeze
     preprocessed_img = F.to_tensor(img).unsqueeze(0)
@@ -110,12 +120,16 @@ def predict(img, df):
     #labels = np.asarray(pred[0]['labels'])
 
     # OCR
+    print('Starting OCR')
+    OCR_results = pipeline.recognize([np.asarray(img)])[0]
+
+    # figure out labels
     labels = []
     for box in bboxes:
-        sub_img = copy.deepcopy(img).crop((box))
-        predictions = pipeline.recognize([np.asarray(sub_img)])[0]
-        ocr_words = set([pred[0] for pred in predictions]) # make set for jaccard sim
         df2 = copy.deepcopy(df)
+        text_in_box = find_textboxes_in_cerealbox(box, OCR_results)
+        ocr_words = set([text[0] for text in text_in_box]) # make set for jaccard sim
+        ocr_words
         labels.append(get_cereal(df2, ocr_words))
 
     return bboxes, labels
