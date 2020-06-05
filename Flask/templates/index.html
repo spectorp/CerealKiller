@@ -6,17 +6,18 @@
     <link rel="stylesheet" href="static/css/cerealkiller.css">
   </head>
   <body>
-    <h1>Cereal Killer</h1>
+      <center>
+        <h1>Cereal Killer</h1>
 
 
-    <form action="/index" method="post" enctype="multipart/form-data">
-     <input type="file" name="image" value="Upload">
-     <input type="submit" value="Predict"> {% if label %} {{ label }} {% endif %}
-   </form>
+        <form action="/index" method="post" enctype="multipart/form-data">
+         <input type="file" name="image" value="Upload">
+         <input type="submit" value="Predict"> {% if label %} {{ label }} {% endif %}
+        </form>
 
-   {% if figure is defined %}
-    <img src={{ figure }} alt="Image Placeholder" height="600">
-   {% endif %}
-
+       {% if figure is defined %}
+        <img src={{ figure }} alt="Image Placeholder" height="600">
+       {% endif %}
+ </center>
   </body>
 </html>
