@@ -9,12 +9,15 @@ import numpy as np
 import base64
 from io import BytesIO
 from matplotlib.figure import Figure
+import copy
 
 import sys
 sys.path.insert(0, "../scripts")
 from image_processing import *
 import sqlalchemy
 import pandas as pd
+
+import keras_ocr
 
 import torch
 import torchvision
@@ -31,7 +34,7 @@ def generate_plot(img, bboxes, labels):
     ax = fig.subplots()
     ax.set_axis_off()
 
-    ax.imshow(img.permute(1, 2, 0));
+    ax.imshow(img);
     for box, label in zip(bboxes, labels):
         # plot boxes
         ax.plot([box[0],box[2], box[2],box[0],box[0]],
@@ -61,7 +64,7 @@ def connect_to_db():
     conn = db.connect()
     return conn
 
-def load_model(num_classes):
+def load_RCNN(num_classes):
     # Load Faster R-CNN model pre-trained on COCO
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
     # get number of input features for the classifier
@@ -69,11 +72,45 @@ def load_model(num_classes):
     # replace the pre-trained head with a new one
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
     # load model weights
-    weights_file = "../notebooks/best_model_weights_epoch_20.pt"
+    weights_file = "../notebooks/best_model_weights_singleclass_epoch_1.pt"
     weights = torch.load(weights_file, map_location=lambda storage, loc:storage)
     model.load_state_dict(weights)
     model.eval()
     return model
+
+def get_jaccard_sim(set1, set2):
+    intersect = set1.intersection(set2)
+    return len(intersect) / (len(set1) + len(set2) - len(intersect))
+
+def get_cereal(df, ocr_words):
+    # add jaccard column to dataframe
+    df["jaccard"] = np.nan
+
+    for ix, row in df.iterrows():
+        # pre-process cereal name
+        cereal = row['cereal_name'] + " " + row['company']
+        cereal = cereal.lower().replace("'","").replace("-", " ")
+        cereal = set(cereal.split())
+        # Get jaccard and add to dataframe
+        jaccard = get_jaccard_sim(ocr_words, cereal)
+        df.loc[ix, "jaccard"] = jaccard
+
+    return df.sort_values(by=['jaccard'], ascending=False)['cereal_name'].iloc[0]
+
+
+#-----------------------------------------------
+
+# load RCNN model
+#num_classes=len(df['label_id'])
+num_classes = 2
+model = load_RCNN(num_classes)
+
+# Load keras-OCR
+pipeline = keras_ocr.pipeline.Pipeline()
+
+# Get cereal info from DB
+s = 'select cereal_name, company, short_name, label_id from cereals'
+df = pd.read_sql(s, connect_to_db())
 
 #-----------------------------------------------
 
@@ -84,13 +121,6 @@ app = Flask(__name__)
 @app.route('/index', methods=['POST'])
 def make_prediction():
     if request.method=='POST':
-
-        # Get cereal info from DB
-        s = 'select cereal_name, short_name, label_id from cereals'
-        df = pd.read_sql(s, connect_to_db())
-
-        # load model
-        model = load_model(num_classes=len(df['label_id']))
 
         # Get uploaded image
         file = request.files['image']
@@ -104,16 +134,37 @@ def make_prediction():
         # resize and crop
         #img = resize_bg_img(img, out_px)
 
-        # convert to PyTorch tensor
-        img = F.to_tensor(img)
-
-        preprocessed_img = img.unsqueeze(0)
+        # convert to PyTorch tensor and unsqueeze
+        preprocessed_img = F.to_tensor(img).unsqueeze(0)
 
         with torch.no_grad():                                     # Without tracking gradients,
             pred = model(preprocessed_img)
 
         bboxes = np.asarray(pred[0]['boxes'])
         labels = np.asarray(pred[0]['labels'])
+
+        print(len(bboxes))
+
+        #-------------------------------------------------
+
+        labels = []
+        for box in bboxes:
+            sub_img = copy.deepcopy(img).crop((box))
+            predictions = pipeline.recognize([np.asarray(sub_img)])[0]
+
+            ocr_words = set([pred[0] for pred in predictions]) # make set for jaccard sim
+
+            df2 = copy.deepcopy(df)
+
+            labels.append(get_cereal(df2, ocr_words))
+
+
+
+
+
+
+
+        #-------------------------------------------------
 
         # generate figure with matplotlib
         figure = generate_plot(img, bboxes, labels)
