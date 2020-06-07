@@ -38,13 +38,13 @@ a:visited {
 a:hover {
 	font-weight: bold;
 	text-decoration: none;
-	color: #4B4B4B;
+	color: #4588ba;
 }
 
 /* Navigation bar */
-
 .topnav {
 	overflow: hidden;
+	border-bottom: 2px solid #4588ba;
 }
 
 /* Style the links inside the navigation bar */
@@ -58,6 +58,7 @@ a:hover {
 }
 
 .logo {
+	margin-top:30px;
 	margin-bottom:30px;
 }
 
