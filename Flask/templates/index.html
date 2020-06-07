@@ -1,23 +1,88 @@
 <html>
-  <head>
-    <title>Cereal Killer</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="static/css/cerealkiller.css">
-  </head>
-  <body>
-      <center>
-        <h1>Cereal Killer</h1>
+<head>
+  <title>Cereal Killer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-        <form action="/index" method="post" enctype="multipart/form-data">
-         <input type="file" name="image" value="Upload">
-         <input type="submit" value="Predict"> {% if label %} {{ label }} {% endif %}
-        </form>
 
-       {% if figure is defined %}
-        <img src={{ figure }} alt="Image Placeholder" height="600">
-       {% endif %}
- </center>
-  </body>
+
+  <link rel="stylesheet" href="static/css/cerealkiller.css">
+
+  <style type="text/css">
+  * {margin: 0; padding: 0;}
+  #container {height: 100%; width:100%; font-size: 0;}
+  #left, #middle, #right {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
+  #left {width: 20%; }
+  #middle {width: 59%}
+  #right {width: 20%; }
+  </style>
+
+
+</head>
+<body>
+  <center>
+
+    <!-- Navigation Bar -->
+    <div class="topnav">
+      <a href="#about">About</a>
+      <a href="#about">Slides</a>
+    </div>
+
+    <!-- Logo -->
+    <div class="logo">
+      <a href=/><img src="/static/img/cerealkiller_logo.png" height="200"></a>
+    </div>
+
+    <!-- Input Form -->
+    <div class="input_form"
+    <form action="/index" method="post" enctype="multipart/form-data">
+
+      <div class="checkboxes">
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="wheat">Wheat
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="soy">Soy
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="tree_nut">Tree nuts
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="coconut">Coconut
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="sesame">Sesame
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="peanut">Peanut
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="egg">Egg
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="milk">Milk
+        </label>
+      </div>
+
+      <input type="file" name="image" value="Upload">
+      <input type="submit" value="Predict"> {% if label %} {{ label }} {% endif %}
+    </form>
+  </div>
+
+  <!-- Output and spoons -->
+  <div id="container">
+    <div id="left"> <img src="/static/img/spoon.png" height="500"></div>
+
+    <div id="middle"; style="height:500; border:1px solid black; ">
+      {% if figure is defined %}
+      <img src={{ figure }} alt="Image Placeholder">
+      {% endif %}
+    </div>
+    <div id="right"><img src="/static/img/spoon.png" height="500"></div>
+  </div>
+
+
+</center>
+</body>
 </html>
