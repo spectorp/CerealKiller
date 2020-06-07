@@ -29,7 +29,7 @@ from io import BytesIO
 #                 functions
 #-----------------------------------------------
 
-def generate_plot(img, bboxes, labels):
+def generate_plot(img, bboxes, labels, allergies, df):
     """
     Generate the figure **without using pyplot**
     """
@@ -39,16 +39,40 @@ def generate_plot(img, bboxes, labels):
 
     ax.imshow(img);
     for box, label in zip(bboxes, labels):
+        fontsize = (box[3]-box[1]) / img.size[1]
+
+        # if dangerous
+        if df[df.cereal_name==label][allergies].sum().sum() > 0:
+            color = 'red'
+            symbol = 'X'
+        else:
+            # if unknown
+            if df[df.cereal_name==label][allergies].isnull().values.any():
+                color = 'orange'
+                symbol = '?'
+            # if safe
+            else:
+                color = 'lime'
+                symbol = u'\u2713'
+
         # plot boxes
         ax.plot([box[0],box[2], box[2],box[0],box[0]],
             [box[1],box[1],box[3],box[3],box[1]],
-            linewidth=2, color='lime')
+            linewidth=2, color=color)
+        # plot symbol
+        ax.text(np.mean([box[0], box[2]]),
+            np.mean([box[1],box[3]]),
+            symbol,
+            fontsize=fontsize*250,
+            color=color,
+            horizontalalignment='center',
+            verticalalignment='center')
         # plot labels
         ax.text(np.mean([box[0], box[2]]),
             np.mean([box[1],box[3]]),
             str(label),
-            fontsize=15,
-            bbox=dict(facecolor='lime', alpha=0.5),
+            fontsize=fontsize*20,
+            bbox=dict(facecolor=color, alpha=0.5),
             horizontalalignment='center')
 
     # Save figure to a temporary buffer.
@@ -58,6 +82,12 @@ def generate_plot(img, bboxes, labels):
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     figure =  f"data:image/png;base64,{data}"
     return figure
+
+
+
+
+
+
 
 def connect_to_db():
     passwd = open('../db_info','r').readlines()[1].split()[0]
@@ -147,7 +177,7 @@ model = load_RCNN(num_classes)
 pipeline = keras_ocr.pipeline.Pipeline()
 
 # Get cereal info from DB
-s = 'select cereal_name, company, short_name, label_id from cereals'
+s = 'select * from cereals'
 df = pd.read_sql(s, connect_to_db())
 
 
@@ -166,7 +196,6 @@ def make_prediction():
         # get list of allergies
         allergies = request.form.getlist('allergy')
 
-
         # Get uploaded image
         file = request.files['image']
         filename = secure_filename(file.filename)
@@ -176,7 +205,7 @@ def make_prediction():
         bboxes, labels = predict(img, df)
 
         # generate figure with matplotlib
-        figure = generate_plot(img, bboxes, labels)
+        figure = generate_plot(img, bboxes, labels, allergies, df)
 
         return render_template("index.html", figure = figure)
     else:
