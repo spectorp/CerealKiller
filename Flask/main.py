@@ -182,6 +182,14 @@ def make_prediction():
     else:
         return render_template('index.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/slides')
+def slides():
+    return render_template('slides.html')
+
 #-----------------------------------------------------------------------
 #
 #-----------------------------------------------------------------------
