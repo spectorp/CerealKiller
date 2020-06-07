@@ -1,41 +1,14 @@
-<html>
-<head>
-  <title>Cereal Killer</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-
-
-
-  <link rel="stylesheet" href="static/css/cerealkiller.css">
-
-  <style type="text/css">
-  * {margin: 0; padding: 0;}
-  #container {height: 100%; width:100%; font-size: 0;}
-  #left, #middle, #right {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
-  #left {width: 20%; }
-  #middle {width: 59%}
-  #right {width: 20%; }
-  </style>
-
-
-</head>
-<body>
-  <center>
-
-    <!-- Navigation Bar -->
-    <div class="topnav">
-      <a href="#about">About</a>
-      <a href="#about">Slides</a>
-    </div>
-
+{% extends "base.html" %}
+{% block content %}
     <!-- Logo -->
     <div class="logo">
       <a href=/><img src="/static/img/cerealkiller_logo.png" height="200"></a>
     </div>
 
     <!-- Input Form -->
-    <div class="input_form"
+    <div class="input_form"  {width: 59%}>
+    <p>Step 1: Check your allergens</p>
+
     <form action="/index" method="post" enctype="multipart/form-data">
 
       <div class="checkboxes">
@@ -65,6 +38,8 @@
         </label>
       </div>
 
+      <p>Step 2: Upload photo of cereal boxes</p>
+
       <input type="file" name="image" value="Upload">
       <input type="submit" value="Predict"> {% if label %} {{ label }} {% endif %}
     </form>
@@ -82,7 +57,4 @@
     <div id="right"><img src="/static/img/spoon.png" height="500"></div>
   </div>
 
-
-</center>
-</body>
-</html>
+  {% endblock %}
