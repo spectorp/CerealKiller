@@ -7,13 +7,25 @@
 
     <!-- Input Form -->
     <div class="input_form"  {width: 59%}>
-    <p>Step 1: Check your allergens</p>
+    <p>What are you allergic to?</p>
 
     <form action="/index" method="post" enctype="multipart/form-data">
 
       <div class="checkboxes">
         <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="wheat">Wheat
+          <input type="checkbox" name="allergy" value="coconut">Coconut
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="egg">Egg
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="milk">Milk
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="peanut">Peanut
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="allergy" value="sesame">Sesame
         </label>
         <label class="checkbox-inline">
           <input type="checkbox" name="allergy" value="soy">Soy
@@ -22,26 +34,14 @@
           <input type="checkbox" name="allergy" value="tree_nut">Tree nuts
         </label>
         <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="coconut">Coconut
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="sesame">Sesame
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="peanut">Peanut
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="egg">Egg
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="milk">Milk
+          <input type="checkbox" name="allergy" value="wheat">Wheat
         </label>
       </div>
 
-      <p>Step 2: Upload photo of cereal boxes</p>
+      <p>Upload a photo of cereal boxes</p>
 
       <input type="file" name="image" value="Upload">
-      <input type="submit" value="Predict"> {% if label %} {{ label }} {% endif %}
+      <input type="submit" value="Classify"> {% if label %} {{ label }} {% endif %}
     </form>
   </div>
 
@@ -49,7 +49,7 @@
   <div id="container">
     <div id="left"> <img src="/static/img/spoon.png" height="500"></div>
 
-    <div id="middle"; style="height:500; border:1px solid black; ">
+    <div id="middle"; style="height:500; border:2px solid #4588ba; ">
       {% if figure is defined %}
       <img src={{ figure }} alt="Image Placeholder">
       {% endif %}
