@@ -75,7 +75,8 @@ def load_RCNN(num_classes):
     # replace the pre-trained head with a new one
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
     # load model weights
-    weights_file = "../notebooks/best_model_weights_singleclass_epoch_1.pt"
+    #weights_file = "../notebooks/best_model_weights_singleclass_epoch_1.pt"
+    weights_file = "../notebooks/best_model_weights_singleclass_epoch_9_F1_52.pt"
     weights = torch.load(weights_file, map_location=lambda storage, loc:storage)
     model.load_state_dict(weights)
     model.eval()
@@ -161,6 +162,10 @@ app = Flask(__name__)
 @app.route('/index', methods=['POST'])
 def make_prediction():
     if request.method=='POST':
+
+        # get list of allergies
+        allergies = request.form.getlist('allergy')
+
 
         # Get uploaded image
         file = request.files['image']
