@@ -13,10 +13,13 @@ from werkzeug.utils import secure_filename
 import sys
 sys.path.insert(0, "../scripts")
 import keras_ocr
-import torch
-import torchvision
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.transforms import functional as F
+YOLO_path = '/home/perry/datasci/study_guide/examples/YOLO/TrainYourOwnYOLO'
+src_path = os.path.join(YOLO_path, "2_Training", "src")
+utils_path = os.path.join(YOLO_path, "Utils")
+sys.path.append(src_path)
+sys.path.append(utils_path)
+from keras_yolo3.yolo import YOLO
+from utils import detect_object
 
 # Packages required for image processing and figure generation
 from PIL import Image
@@ -24,6 +27,7 @@ from matplotlib.figure import Figure
 from image_processing import *
 import base64
 from io import BytesIO
+
 
 #-----------------------------------------------
 #                 functions
@@ -142,12 +146,10 @@ def find_textboxes_in_cerealbox(box, OCR_results):
     return text_in_box
 
 def predict(img, df):
-    # convert to PyTorch tensor and unsqueeze
-    preprocessed_img = F.to_tensor(img).unsqueeze(0)
-    # predict
-    with torch.no_grad():                                     # Without tracking gradients,
-        pred = model(preprocessed_img)
-    bboxes = np.asarray(pred[0]['boxes'])
+    bboxes, _ = yolo.detect_image(img)
+
+
+    #bboxes = np.asarray(pred[0]['boxes'])
     #labels = np.asarray(pred[0]['labels'])
 
     # OCR
@@ -158,7 +160,7 @@ def predict(img, df):
     labels = []
     for box in bboxes:
         df2 = copy.deepcopy(df)
-        text_in_box = find_textboxes_in_cerealbox(box, OCR_results)
+        text_in_box = find_textboxes_in_cerealbox(box[0:4], OCR_results)
         ocr_words = set([text[0] for text in text_in_box]) # make set for jaccard sim
         ocr_words
         labels.append(get_cereal(df2, ocr_words))
@@ -169,9 +171,20 @@ def predict(img, df):
 #  load models and query DB during app spinup
 #-----------------------------------------------
 
-# load RCNN model
-num_classes = 2
-model = load_RCNN(num_classes)
+# load YOLO
+model_weights = os.path.join(YOLO_path, 'Data', 'Model_Weights', "trained_weights_final_ck2000.h5")
+anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo_anchors.txt")
+model_classes = os.path.join(YOLO_path, 'Data', 'Model_Weights', "data_classes.txt")
+yolo = YOLO(
+    **{
+        "model_path": model_weights,
+        "anchors_path": anchors_path,
+        "classes_path": model_classes,
+        "score": 0.25,
+        "gpu_num": 1,
+        "model_image_size": (416, 416),
+    }
+)
 
 # Load keras-OCR
 pipeline = keras_ocr.pipeline.Pipeline()
