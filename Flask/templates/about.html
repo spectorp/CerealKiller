@@ -1,17 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
 
+  <div style="height:100"></div>
   <!-- Output and spoons -->
   <div id="container">
     <div id="left"> <img src="/static/img/spoon.png" height="500"></div>
 
     <div id="middle"; style="height:500;">
 
-      some text here
+      <p valign=center>Hi, I'm Perry Spector, and I built Cereal Killer in three weeks as an Insight Data Science Fellow.
+        Several people in my life have severe food allergies, and it's tedious for them to manually sift through
+        packaged foods at the grocery store to find ones that are safe for them. I used computer vision methods to
+        detect cereal boxes in an image and identify safe ones.
+      <br><br><br>
+        Under the hood:
+      <br><br>
+        <i>Data:</i> Training an object detection model requires annotated images. Rather than manually identifying cereal boxes in images,
+        I generated thousands of artificial images of cereal boxes superimposed on images of grocery store shelves, like the one below.
+        Although I only used a few images of each cereal box, I increased the diversity of box images by warping, blurring, and modifying the color.
+        I compiled cereal and allergy information in a MySQL database.
+      </p>
+      <img src="/static/img/example_training_image.png" height="200">
+      <p>
 
+        <i>Algorithm:</i> I trained the YOLO v3 model to detect the locations of cereal boxes in images using transfer learning. For each
+        detected box, I use the Keras-OCR model to identify text. Then I match the box to a cereal in the database and retrieve the allergy information.
+      <br><br>
+        <i>Backend:</i> The project is coded in Python and leverages BeautifulSoup, numpy, PIL, pandas, and sqlalchemy.
+      <br><br>
+        <i>Frontend:</i> Built using Flask and matplotlib. Deployed on AWS.
+      <br><br>
+        The source code is available on GitHub (insert link)
+      </p>
     </div>
     <div id="right"><img src="/static/img/spoon.png" height="500"></div>
   </div>
-
-
 {% endblock %}
