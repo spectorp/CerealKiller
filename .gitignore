@@ -11,5 +11,6 @@ notebooks/.ipynb_checkpoints
 *.png
 *.psd
 *.pt
+*.h5
 
 .ipynb_checkpoints
