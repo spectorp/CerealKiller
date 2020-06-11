@@ -110,7 +110,7 @@ def load_RCNN(num_classes):
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
     # load model weights
     #weights_file = "../notebooks/best_model_weights_singleclass_epoch_1.pt"
-    weights_file = "../notebooks/best_model_weights_singleclass_epoch_9_F1_52.pt"
+    weights_file = "../archive/FRCNN_weights/best_model_weights_singleclass_epoch_9_F1_52.pt"
     weights = torch.load(weights_file, map_location=lambda storage, loc:storage)
     model.load_state_dict(weights)
     model.eval()
