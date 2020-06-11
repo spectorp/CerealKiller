@@ -1,0 +1,3 @@
+[submodule "YOLOv3/TrainYourOwnYOLO"]
+	path = YOLOv3/TrainYourOwnYOLO
+	url = https://github.com/AntonMu/TrainYourOwnYOLO

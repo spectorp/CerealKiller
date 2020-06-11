@@ -1,7 +1,4 @@
-#import numpy as np
 import pandas as pd
-#import sqlalchemy
-#import copy
 import os
 
 # App packages
@@ -13,8 +10,7 @@ from werkzeug.utils import secure_filename
 # Model-related packages
 import sys
 sys.path.insert(0, "../scripts")
-#import keras_ocr
-YOLO_path = '/home/perry/datasci/study_guide/examples/YOLO/TrainYourOwnYOLO'
+YOLO_path = '../YOLOv3/TrainYourOwnYOLO'
 src_path = os.path.join(YOLO_path, "2_Training", "src")
 utils_path = os.path.join(YOLO_path, "Utils")
 sys.path.append(src_path)
@@ -39,13 +35,10 @@ def generate_plot(img, prediction_results, allergies, df):
     """
     fig = Figure()
     ax = fig.subplots()
-
     # remove background
     ax.set_axis_off()
-
     # Plot image
     ax.imshow(img);
-
 
     # Plot bonding boxes and annotations
     for result in prediction_results:
