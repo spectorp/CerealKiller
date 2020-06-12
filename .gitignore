@@ -2,6 +2,7 @@
 db_info
 ServiceAccountToken_VisionAPI.json
 
+demos/
 data/
 img/
 notebooks/.ipynb_checkpoints
