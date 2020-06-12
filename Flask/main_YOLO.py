@@ -33,6 +33,51 @@ def generate_plot(img, prediction_results, allergies, df):
     """
     Generate the figure **without using pyplot**
     """
+
+    # Plot bonding boxes and annotations
+    box_color = []
+    for result in prediction_results:
+        box = result['box']
+        label = result['label']
+        fontsize = (box[3]-box[1]) / img.size[1]
+
+        # if no allergies selected, all are safe
+        if len(allergies) == 0:
+            symbol = copy.deepcopy(check_symbol)
+            box_color.append('green')
+        else:
+            # if cereal type is unknown
+            if label == '':
+                symbol = copy.deepcopy(question_symbol)
+                box_color.append('yellow')
+            else:
+                # if dangerous
+                if df[df.cereal_name==label][allergies].sum().sum() > 0:
+                    symbol = copy.deepcopy(x_symbol)
+                    box_color.append('red')
+                else:
+                    # if unknown
+                    if df[df.cereal_name==label][allergies].isnull().values.any():
+                        symbol = copy.deepcopy(question_symbol)
+                        box_color.append('yellow')
+                    # if safe
+                    else:
+                        symbol = copy.deepcopy(check_symbol)
+                        box_color.append('green')
+
+        # resize symbol
+        symbol_scale = 0.9
+        new_height = int(np.round(box[3]-box[1]) * symbol_scale)
+        new_width = int(np.round(new_height * symbol.size[0] / symbol.size[1]) * symbol_scale)
+        symbol = symbol.resize((new_width, new_height))
+
+        # figure out where to paste the symbol
+        x_paste = int(np.mean([box[0],box[2]])-(new_width/2))
+        y_paste = int(np.mean([box[1], box[3]])-(new_height/2))
+
+        # paste
+        img.paste(symbol, (x_paste,y_paste), symbol)
+
     fig = Figure()
     ax = fig.subplots()
     # remove background
@@ -41,37 +86,15 @@ def generate_plot(img, prediction_results, allergies, df):
     ax.imshow(img);
 
     # Plot bonding boxes and annotations
-    for result in prediction_results:
+    for result, color in zip(prediction_results, box_color):
         box = result['box']
         label = result['label']
         fontsize = (box[3]-box[1]) / img.size[1]
-
-        # if dangerous
-        if df[df.cereal_name==label][allergies].sum().sum() > 0:
-            color = 'red'
-            symbol = 'X'
-        else:
-            # if unknown
-            if df[df.cereal_name==label][allergies].isnull().values.any():
-                color = 'orange'
-                symbol = '?'
-            # if safe
-            else:
-                color = 'lime'
-                symbol = u'\u2713'
 
         # plot boxes
         ax.plot([box[0],box[2], box[2],box[0],box[0]],
             [box[1],box[1],box[3],box[3],box[1]],
             linewidth=2, color=color)
-        # plot symbol
-        ax.text(np.mean([box[0], box[2]]),
-            np.mean([box[1],box[3]]),
-            symbol,
-            fontsize=fontsize*250,
-            color=color,
-            horizontalalignment='center',
-            verticalalignment='center')
         # plot labels
         ax.text(np.mean([box[0], box[2]]),
             np.mean([box[1],box[3]]),
@@ -105,6 +128,7 @@ def predict(img, df):
         OCR_words = set()
         for word, vertices in zip(OCR_words_all, OCR_vertices):
             if (vertices['y'] > stacked_img_edges[ix]).all() & (vertices['y'] < stacked_img_edges[ix+1]).all():
+                word = process_string_for_comparison(word)
                 OCR_words.add(word)
         if len(OCR_words) > 0:
             # predict cereal
@@ -115,6 +139,7 @@ def predict(img, df):
                 'box': box[0:4],
                 'label': label
             })
+    print(prediction_results)
     return prediction_results
 
 #-----------------------------------------------
@@ -144,6 +169,11 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../ServiceAccountToken_VisionAPI
 s = 'select * from cereals'
 df = pd.read_sql(s, connect_to_db())
 
+# load annotation symbols
+symbol_dir = os.path.join('static', 'img')
+question_symbol = Image.open(os.path.join(symbol_dir, 'question_symbol.png'))
+check_symbol = Image.open(os.path.join(symbol_dir, 'check_symbol.png'))
+x_symbol = Image.open(os.path.join(symbol_dir, 'x_symbol.png'))
 
 #-----------------------------------------------
 #                run app
