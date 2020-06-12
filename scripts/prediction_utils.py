@@ -8,8 +8,8 @@ import sqlalchemy
 
 # Get cereal info from DB
 def connect_to_db():
-    passwd = open('../../../Insight/cereal_killer/db_info','r').readlines()[1].split()[0]
-    username = open('../../../Insight/cereal_killer/db_info','r').readlines()[0].split()[0]
+    passwd = open('../db_info','r').readlines()[1].split()[0]
+    username = open('../db_info','r').readlines()[0].split()[0]
     dbname = 'cereals'
     db = sqlalchemy.create_engine(f'mysql+pymysql://{username}:{passwd}@localhost/{dbname}')
     conn = db.connect()
@@ -69,6 +69,8 @@ def Vision_API_OCR(stacked_image):
 
     return OCR_words_all, OCR_vertices
 
+def process_string_for_comparison(string):
+    return string.lower().replace("'","").replace("-", " ")
 
 def jaccard_similarity(set1, set2):
     """ Calculate Jaccard similarity between two sets of strings"""
@@ -83,10 +85,16 @@ def get_cereal(df, ocr_words):
     for ix, row in df.iterrows():
         # pre-process cereal name
         cereal = row['cereal_name'] + " " + row['company']
-        cereal = cereal.lower().replace("'","").replace("-", " ")
+        cereal = process_string_for_comparison(cereal)
         cereal = set(cereal.split())
         # Get jaccard and add to dataframe
         jaccard = jaccard_similarity(ocr_words, cereal)
         df.loc[ix, "jaccard"] = jaccard
 
-    return df.sort_values(by=['jaccard'], ascending=False)['cereal_name'].iloc[0]
+    # if no jaccard greater than zero, return empty string
+    if df['jaccard'].max() == 0:
+        predicted_cereal = ''
+    else:
+        predicted_cereal = df['cereal_name'][df['jaccard'].idxmax()]
+
+    return predicted_cereal
