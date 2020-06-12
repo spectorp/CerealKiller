@@ -1,60 +1,90 @@
 {% extends "base.html" %}
 {% block content %}
-    <!-- Logo -->
-    <div class="logo">
-      <a href=/><img src="/static/img/cerealkiller_logo.png" height="200"></a>
+
+<!-- Maintain checkbox status after submit and refresh -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  var checkbox = document.querySelectorAll("input[type='checkbox']");
+
+  for(var item of checkbox){
+    item.addEventListener("click", function(){
+      localStorage.s_item ? // verifico se existe localStorage
+      localStorage.s_item = localStorage.s_item.indexOf(this.id+",") == -1 // verifico de localStorage contém o id
+      ? localStorage.s_item+this.id+"," // não existe. Adiciono a id no loaclStorage
+      : localStorage.s_item.replace(this.id+",","") : // já existe, apago do localStorage
+      localStorage.s_item = this.id+",";  // não existe. Crio com o id do checkbox
+    });
+  }
+
+  if(localStorage.s_item){ // verifico se existe localStorage
+    for(var item of checkbox){ // existe, percorro as checkbox
+      item.checked = localStorage.s_item.indexOf(item.id+",") != -1 ? true : false; // marco true nas ids que existem no localStorage
+    }
+  }
+});
+</script>
+
+
+<!-- Logo -->
+<div class="logo">
+  <a href=/><img src="/static/img/cerealkiller_logo.png" height="100"></a>
+  <h1><i>quickly find allergy-safe cereals</i></h1>
+</div>
+
+
+<!-- Input Form -->
+<div class="input_form"  {width: 59%}>
+  <p>What are you allergic to?</p>
+
+  <form action="/index" method="post" enctype="multipart/form-data">
+
+    <div class="checkboxes">
+      <label class="checkbox-inline">
+        <input type="checkbox" id="coconut" name="allergy" value="coconut">Coconut
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="egg" name="allergy" value="egg">Egg
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="milk" name="allergy" value="milk">Milk
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="peanut" name="allergy" value="peanut">Peanut
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="sesame" name="allergy" value="sesame">Sesame
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="soy" name="allergy" value="soy">Soy
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="tree_nut" name="allergy" value="tree_nut">Tree nuts
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="wheat" name="allergy" value="wheat">Wheat
+      </label>
     </div>
 
-    <!-- Input Form -->
-    <div class="input_form"  {width: 59%}>
-    <p>What are you allergic to?</p>
+    <p>Upload a photo of cereal boxes</p>
 
-    <form action="/index" method="post" enctype="multipart/form-data">
+    <input type="file" name="image" value="Upload">
+    <input type="submit" value="Run"> {% if label %} {{ label }} {% endif %}
+  </form>
+</div>
 
-      <div class="checkboxes">
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="coconut">Coconut
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="egg">Egg
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="milk">Milk
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="peanut">Peanut
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="sesame">Sesame
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="soy">Soy
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="tree_nut">Tree nuts
-        </label>
-        <label class="checkbox-inline">
-          <input type="checkbox" name="allergy" value="wheat">Wheat
-        </label>
-      </div>
+<!-- Output and spoons -->
+<div id="container">
+  <div id="left"> <img src="/static/img/spoon.png" height="500"></div>
 
-      <p>Upload a photo of cereal boxes</p>
-
-      <input type="file" name="image" value="Upload">
-      <input type="submit" value="Classify"> {% if label %} {{ label }} {% endif %}
-    </form>
+  <div id="middle"; style="height:500; border:2px solid #4588ba; ">
+    {% if figure is defined %}
+    <img src={{ figure }} alt="Image Placeholder">
+    {% endif %}
   </div>
+  <div id="right"><img src="/static/img/spoon.png" height="500"></div>
+</div>
 
-  <!-- Output and spoons -->
-  <div id="container">
-    <div id="left"> <img src="/static/img/spoon.png" height="500"></div>
 
-    <div id="middle"; style="height:500; border:2px solid #4588ba; ">
-      {% if figure is defined %}
-      <img src={{ figure }} alt="Image Placeholder">
-      {% endif %}
-    </div>
-    <div id="right"><img src="/static/img/spoon.png" height="500"></div>
-  </div>
 
-  {% endblock %}
+{% endblock %}
