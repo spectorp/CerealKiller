@@ -41,6 +41,13 @@ a:hover {
 	color: #4588ba;
 }
 
+.contain {
+	object-fit: contain;
+	object-position: center;
+	max-width: 100%;
+	max-height: 100%;
+}
+
 /* Navigation bar */
 .topnav {
 	overflow: hidden;
@@ -58,8 +65,11 @@ a:hover {
 }
 
 .logo {
+	width:100%;
 	margin-top:30px;
-	margin-bottom:30px;
+	margin-bottom:50px;
+	text-align: center;
+	display: block;
 }
 
 .checkboxes {
