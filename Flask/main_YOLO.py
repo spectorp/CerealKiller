@@ -37,10 +37,8 @@ def generate_plot(img, prediction_results, allergies, df):
 
     fig = Figure()
     ax = fig.subplots()
-    # remove background
-    ax.set_axis_off()
-    # Plot image
-    ax.imshow(img);
+    ax.set_axis_off()        # remove background
+    ax.imshow(img);          # Plot image
 
     # Plot bonding boxes and annotations
     for result in prediction_results:
@@ -127,45 +125,6 @@ def predict(img, df):
     prediction_results = []
     for ix, box in enumerate(YOLO_predictions):
         # Find OCR text in this cereal box
-        OCR_words = set()
-        for word, vertices in zip(OCR_words_all, OCR_vertices):
-            if (vertices['y'] > stacked_img_edges[ix]).all() & (vertices['y'] < stacked_img_edges[ix+1]).all():
-                word = process_string_for_comparison(word)
-                OCR_words.add(word)
-        if len(OCR_words) > 0:
-            # predict cereal
-            label = get_cereal(df, OCR_words)
-            # compile results in dictionary
-            prediction_results.append({
-                'OCR': OCR_words,
-                'box': box[0:4],
-                'label': label
-            })
-    print(prediction_results)
-    return prediction_results
-
-def predict2(img, df):
-    # Run YOLO detector
-    YOLO_predictions, _ = yolo.detect_image(img);
-
-    # Only permit bounding boxes with height > width and height / width > 2.5
-    YOLO_predictions = [box for box in YOLO_predictions if (box[3]-box[1]) > (box[2]-box[0]) and (box[3]-box[1]) / (box[2]-box[0]) < 2.5]
-
-    # Remove bounding boxes smaller than mean_box_area - coefficient*std_box_area
-    areas = [(box[2]-box[0])*(box[3]-box[1]) for box in YOLO_predictions]
-    YOLO_predictions = [box for box, area in zip(YOLO_predictions, areas) if area > (np.mean(areas)-1.5*np.std(areas))]
-
-    # Generate vertically-stacked image
-    stacked_image, stacked_img_edges = generate_stacked_image(YOLO_predictions, img)
-
-    # Detect text with Cloud Vision API and parse results
-    OCR_words_all, OCR_vertices = Vision_API_OCR(stacked_image)
-
-
-    # loop through detected boxes and identify each
-    prediction_results = []
-    for ix, box in enumerate(YOLO_predictions):
-        # Find OCR text in this cereal box
         OCR_words = []
         OCR_areas = np.empty((0))
         for word, vertices in zip(OCR_words_all, OCR_vertices):
@@ -234,7 +193,7 @@ def make_prediction():
         new_img = copy.deepcopy(img)
 
         # process image, predict bounding boxes, predict cereal using OCR
-        prediction_results = predict2(new_img, df)
+        prediction_results = predict(new_img, df)
 
         # generate figure with matplotlib
         figure = generate_plot(img, prediction_results, allergies, df)
