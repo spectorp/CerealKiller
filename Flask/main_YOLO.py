@@ -115,34 +115,40 @@ def predict(img, df):
     areas = [(box[2]-box[0])*(box[3]-box[1]) for box in YOLO_predictions]
     YOLO_predictions = [box for box, area in zip(YOLO_predictions, areas) if area > (np.mean(areas)-1.5*np.std(areas))]
 
-    # Generate vertically-stacked image
-    stacked_image, stacked_img_edges = generate_stacked_image(YOLO_predictions, img)
-
-    # Detect text with Cloud Vision API and parse results
-    OCR_words_all, OCR_vertices = Vision_API_OCR(stacked_image)
-
-    # loop through detected boxes and identify each
+    # create empty result list
     prediction_results = []
-    for ix, box in enumerate(YOLO_predictions):
-        # Find OCR text in this cereal box
-        OCR_words = []
-        OCR_areas = np.empty((0))
-        for word, vertices in zip(OCR_words_all, OCR_vertices):
-            if (vertices['y'] > stacked_img_edges[ix]).all() & (vertices['y'] < stacked_img_edges[ix+1]).all():
-                word = unidecode.unidecode(word)
-                OCR_words.append(process_string_for_comparison(word))
-                OCR_areas = np.append(OCR_areas, PolygonArea(vertices['x'], vertices['y']))
-        if len(OCR_words) > 0:
-            # predict cereal
-            label, confidence = get_cereal2(df, OCR_words, OCR_areas)
-            # compile results in dictionary
-            prediction_results.append({
-                'OCR': OCR_words,
-                'box': box[0:4],
-                'label': label,
-                'confidence': confidence
-            })
-    return prediction_results
+
+    # Deal with case that no cereal boxes found
+    if len(YOLO_predictions) == 0:
+        return prediction_results
+    else:
+        # Generate vertically-stacked image
+        stacked_image, stacked_img_edges = generate_stacked_image(YOLO_predictions, img)
+
+        # Detect text with Cloud Vision API and parse results
+        OCR_words_all, OCR_vertices = Vision_API_OCR(stacked_image)
+
+        # loop through detected boxes and identify each
+        for ix, box in enumerate(YOLO_predictions):
+            # Find OCR text in this cereal box
+            OCR_words = []
+            OCR_areas = np.empty((0))
+            for word, vertices in zip(OCR_words_all, OCR_vertices):
+                if (vertices['y'] > stacked_img_edges[ix]).all() & (vertices['y'] < stacked_img_edges[ix+1]).all():
+                    word = unidecode.unidecode(word)
+                    OCR_words.append(process_string_for_comparison(word))
+                    OCR_areas = np.append(OCR_areas, PolygonArea(vertices['x'], vertices['y']))
+            if len(OCR_words) > 0:
+                # predict cereal
+                label, confidence = get_cereal2(df, OCR_words, OCR_areas)
+                # compile results in dictionary
+                prediction_results.append({
+                    'OCR': OCR_words,
+                    'box': box[0:4],
+                    'label': label,
+                    'confidence': confidence
+                })
+        return prediction_results
 
 #-----------------------------------------------
 #  load models and query DB during app spinup
