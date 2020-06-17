@@ -81,7 +81,7 @@ def make_perspective_coeffs(pa,pb):
     return np.array(res).reshape(8)
 
 def perspective_transformation(image):
-    """Skew image"""
+    """Apply projective transformation to image"""
     width = image.size[0]
     height = image.size[1]
 
@@ -144,7 +144,7 @@ def make_training_image(bg_dir_path, fg_dirs, conn, out_px, max_attempts):
             bbox = [x1, y1, x1+width, y1+height]
 
             # sql query
-            s = f'select id from cereals where short_name="{label_name}";'
+            s = f'select label_id from cereals where short_name="{label_name}";'
             label_id = conn.execute(s).fetchall()[0][0]
 
             # target dictionary
