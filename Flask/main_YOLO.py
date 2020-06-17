@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import unidecode
 
 # App packages
 import flask
@@ -34,50 +35,6 @@ def generate_plot(img, prediction_results, allergies, df):
     Generate the figure **without using pyplot**
     """
 
-    # Plot bonding boxes and annotations
-    box_color = []
-    for result in prediction_results:
-        box = result['box']
-        label = result['label']
-        fontsize = (box[3]-box[1]) / img.size[1]
-
-        # if no allergies selected, all are safe
-        if len(allergies) == 0:
-            symbol = copy.deepcopy(check_symbol)
-            box_color.append('green')
-        else:
-            # if cereal type is unknown
-            if label == '':
-                symbol = copy.deepcopy(question_symbol)
-                box_color.append('yellow')
-            else:
-                # if dangerous
-                if df[df.cereal_name==label][allergies].sum().sum() > 0:
-                    symbol = copy.deepcopy(x_symbol)
-                    box_color.append('red')
-                else:
-                    # if unknown
-                    if df[df.cereal_name==label][allergies].isnull().values.any():
-                        symbol = copy.deepcopy(question_symbol)
-                        box_color.append('yellow')
-                    # if safe
-                    else:
-                        symbol = copy.deepcopy(check_symbol)
-                        box_color.append('green')
-
-        # resize symbol
-        symbol_scale = 0.9
-        new_height = int(np.round(box[3]-box[1]) * symbol_scale)
-        new_width = int(np.round(new_height * symbol.size[0] / symbol.size[1]) * symbol_scale)
-        symbol = symbol.resize((new_width, new_height))
-
-        # figure out where to paste the symbol
-        x_paste = int(np.mean([box[0],box[2]])-(new_width/2))
-        y_paste = int(np.mean([box[1], box[3]])-(new_height/2))
-
-        # paste
-        img.paste(symbol, (x_paste,y_paste), symbol)
-
     fig = Figure()
     ax = fig.subplots()
     # remove background
@@ -86,26 +43,64 @@ def generate_plot(img, prediction_results, allergies, df):
     ax.imshow(img);
 
     # Plot bonding boxes and annotations
-    for result, color in zip(prediction_results, box_color):
+    for result in prediction_results:
         box = result['box']
         label = result['label']
+        confidence = result['confidence']
+
+        # if no allergies selected, all are safe
+        if len(allergies) == 0:
+            color = 'lime'
+        else:
+            # if cereal type is unknown
+            if label == '':
+                color = 'yellow'
+            else:
+                # if dangerous
+                if df[df.cereal_name==label][allergies].sum().sum() > 0:
+                    color = 'red'
+                else:
+                    # if unknown
+                    if df[df.cereal_name==label][allergies].isnull().values.any():
+                        color = 'yellow'
+                    # if safe
+                    else:
+                        color = 'lime'
+
+        # if not confident in cereal identification
+        if confidence == 0 and label != '':
+            color = 'yellow'
+            if df[df.cereal_name==label][allergies].sum().sum() > 0:
+                label = 'Not safe if:\n' + label
+            else:
+                if df[df.cereal_name==label][allergies].isnull().values.any():
+                    label = label
+                else:
+                    label = 'Safe if:\n' + label
+
         fontsize = (box[3]-box[1]) / img.size[1]
 
         # plot boxes
         ax.plot([box[0],box[2], box[2],box[0],box[0]],
             [box[1],box[1],box[3],box[3],box[1]],
             linewidth=2, color=color)
+        # set font color
+        if color == 'lime' or color=='yellow':
+            font_color = 'black'
+        else:
+            font_color = 'white'
         # plot labels
         ax.text(np.mean([box[0], box[2]]),
             np.mean([box[1],box[3]]),
-            str(label),
-            fontsize=fontsize*20,
-            bbox=dict(facecolor=color, alpha=0.5),
-            horizontalalignment='center')
+            label.replace(" ", "\n"),
+            fontsize=np.max([fontsize*20, 6]),
+            color=font_color,
+            bbox=dict(facecolor=color, alpha=0.6),
+            horizontalalignment='center', verticalalignment='center')
 
     # Save figure to a temporary buffer.
     buf = BytesIO()
-    fig.savefig(buf, format="png", transparent=True)
+    fig.savefig(buf, format="png", transparent=True, dpi=300)
     # Embed the result in the html output.
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     figure =  f"data:image/png;base64,{data}"
@@ -114,6 +109,13 @@ def generate_plot(img, prediction_results, allergies, df):
 def predict(img, df):
     # Run YOLO detector
     YOLO_predictions, _ = yolo.detect_image(img);
+
+    # Only permit bounding boxes with height > width and height / width > 2.5
+    YOLO_predictions = [box for box in YOLO_predictions if (box[3]-box[1]) > (box[2]-box[0]) and (box[3]-box[1]) / (box[2]-box[0]) < 2.5]
+
+    # Remove bounding boxes smaller than mean_box_area - coefficient*std_box_area
+    areas = [(box[2]-box[0])*(box[3]-box[1]) for box in YOLO_predictions]
+    YOLO_predictions = [box for box, area in zip(YOLO_predictions, areas) if area > (np.mean(areas)-1.5*np.std(areas))]
 
     # Generate vertically-stacked image
     stacked_image, stacked_img_edges = generate_stacked_image(YOLO_predictions, img)
@@ -142,6 +144,47 @@ def predict(img, df):
     print(prediction_results)
     return prediction_results
 
+def predict2(img, df):
+    # Run YOLO detector
+    YOLO_predictions, _ = yolo.detect_image(img);
+
+    # Only permit bounding boxes with height > width and height / width > 2.5
+    YOLO_predictions = [box for box in YOLO_predictions if (box[3]-box[1]) > (box[2]-box[0]) and (box[3]-box[1]) / (box[2]-box[0]) < 2.5]
+
+    # Remove bounding boxes smaller than mean_box_area - coefficient*std_box_area
+    areas = [(box[2]-box[0])*(box[3]-box[1]) for box in YOLO_predictions]
+    YOLO_predictions = [box for box, area in zip(YOLO_predictions, areas) if area > (np.mean(areas)-1.5*np.std(areas))]
+
+    # Generate vertically-stacked image
+    stacked_image, stacked_img_edges = generate_stacked_image(YOLO_predictions, img)
+
+    # Detect text with Cloud Vision API and parse results
+    OCR_words_all, OCR_vertices = Vision_API_OCR(stacked_image)
+
+
+    # loop through detected boxes and identify each
+    prediction_results = []
+    for ix, box in enumerate(YOLO_predictions):
+        # Find OCR text in this cereal box
+        OCR_words = []
+        OCR_areas = np.empty((0))
+        for word, vertices in zip(OCR_words_all, OCR_vertices):
+            if (vertices['y'] > stacked_img_edges[ix]).all() & (vertices['y'] < stacked_img_edges[ix+1]).all():
+                word = unidecode.unidecode(word)
+                OCR_words.append(process_string_for_comparison(word))
+                OCR_areas = np.append(OCR_areas, PolygonArea(vertices['x'], vertices['y']))
+        if len(OCR_words) > 0:
+            # predict cereal
+            label, confidence = get_cereal2(df, OCR_words, OCR_areas)
+            # compile results in dictionary
+            prediction_results.append({
+                'OCR': OCR_words,
+                'box': box[0:4],
+                'label': label,
+                'confidence': confidence
+            })
+    return prediction_results
+
 #-----------------------------------------------
 #  load models and query DB during app spinup
 #-----------------------------------------------
@@ -166,14 +209,8 @@ yolo = YOLO(
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../ServiceAccountToken_VisionAPI.json'
 
 # Get cereal info from DB
-s = 'select * from cereals'
+s = 'select * from cereals2'
 df = pd.read_sql(s, connect_to_db())
-
-# load annotation symbols
-symbol_dir = os.path.join('static', 'img')
-question_symbol = Image.open(os.path.join(symbol_dir, 'question_symbol.png'))
-check_symbol = Image.open(os.path.join(symbol_dir, 'check_symbol.png'))
-x_symbol = Image.open(os.path.join(symbol_dir, 'x_symbol.png'))
 
 #-----------------------------------------------
 #                run app
@@ -197,7 +234,7 @@ def make_prediction():
         new_img = copy.deepcopy(img)
 
         # process image, predict bounding boxes, predict cereal using OCR
-        prediction_results = predict(new_img, df)
+        prediction_results = predict2(new_img, df)
 
         # generate figure with matplotlib
         figure = generate_plot(img, prediction_results, allergies, df)
