@@ -4,7 +4,6 @@ ServiceAccountToken_VisionAPI.json
 
 demos/
 data/
-img/
 notebooks/.ipynb_checkpoints
 
 *.txt
