@@ -140,7 +140,7 @@ def predict(img, df):
                     OCR_areas = np.append(OCR_areas, PolygonArea(vertices['x'], vertices['y']))
             if len(OCR_words) > 0:
                 # predict cereal
-                label, confidence = get_cereal2(df, OCR_words, OCR_areas)
+                label, confidence = get_cereal(df, OCR_words, OCR_areas)
                 # compile results in dictionary
                 prediction_results.append({
                     'OCR': OCR_words,
