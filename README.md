@@ -6,7 +6,7 @@ Developed as a fellow at Insight Data Science.
 ## Data sources
 Generated artificial training data of cereal boxes with projective transformations superimposed on scenes of grocery store shelves. Example:
 
-![Example training image](/Flask/static/img/example_training_image.png = 448)
+![Example training image](/Flask/static/img/example_training_image.png =448x)
 
 ## Dependencies
 - Python 3.7 (including Numpy, pandas, Flask, sqlalchemy, Keras)
