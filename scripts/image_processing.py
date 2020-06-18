@@ -1,3 +1,8 @@
+# Misc image processing utilites related to generating synthetic
+# training data
+#
+# Perry Spector, 2020, spectorp@gmail.com
+
 import numpy as np
 from PIL import Image, ImageFilter, ImageEnhance
 import os

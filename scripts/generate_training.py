@@ -1,3 +1,9 @@
+# Generate artificial images of cereal boxes superimposed on scenes of
+# grocery store shelves. Images are used for training an object
+# detection model.
+#
+# Perry Spector, 2020, spectorp@gmail.com
+
 from image_processing import *
 
 # directory of background images
@@ -24,7 +30,7 @@ out_px = 224
 max_attempts = 100
 
 # number of training images to generate
-n_train_img = 300
+n_train_img = 2000
 
 # generate and save images
 all_targets = {}
