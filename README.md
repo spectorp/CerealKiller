@@ -4,6 +4,9 @@ An app to help people with food allergies quickly find breakfast cereals at the 
 Developed as a fellow at Insight Data Science.
 
 ## Data sources
+Generated artificial training data of cereal boxes superimposed on scenes of grocery store shelves.
+
+![Example training image](/Flask/static/img/example_training_image.png)
 
 
 ## Dependencies
