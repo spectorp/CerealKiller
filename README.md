@@ -9,7 +9,7 @@ Generated artificial training data of cereal boxes with projective transformatio
 <img src="Flask/static/img/example_training_image.png" width="200"/>
 
 ## Dependencies
-- Python 3.7 (including Numpy, pandas, Flask, sqlalchemy, Keras)
+- Python 3.7 (including Numpy, pandas, Flask, sqlalchemy, Keras, BeautifulSoup, matplotlib, PIL)
 - MySQL
 
 ## Algorithm development and validation
