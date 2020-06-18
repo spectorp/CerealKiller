@@ -73,7 +73,7 @@ for iteration in range(100):
         OCR_words = list(map(str.strip, OCR_words))
 
         if len(OCR_words) > 0:
-            label, confidence = get_cereal2(df, OCR_words, OCR_areas)
+            label, confidence = get_cereal(df, OCR_words, OCR_areas)
             if confidence == 0: label = ''
             predicted_labels.append( label )
             predicted_labels_id.append(df.loc[df['cereal_name']==predicted_labels[-1]]['label_id'].to_numpy())
