@@ -1,5 +1,5 @@
 # Cereal Killer
-An app to help people with food allergies quickly find breakfast cereals at the grocery store that are safe for them. The user indicates their allergies and uploads an image of multiple cereal boxes on the shelf. The app returns an annotated image indicating cereals that are safe, unsafe, and uncertain.
+An app to help people with food allergies quickly find breakfast cereals at the grocery store that are safe for them. The user indicates their allergies and uploads an image of multiple cereal boxes on the shelf. The app returns an annotated image indicating cereals that are safe, unsafe, and uncertain. Deployed on AWS at [www.cerealkiller.xyz](http://www.cerealkiller.xyz).
 
 Developed as a fellow at Insight Data Science.
 
