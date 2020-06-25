@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import unidecode
+import socket
 
 # App packages
 import flask
@@ -66,7 +67,7 @@ def generate_plot(img, prediction_results, allergies, df):
                         color = 'lime'
 
         # if not confident in cereal identification
-        if confidence == 0 and label != '':
+        if confidence == 0 and label != '' and len(allergies) > 0:
             color = 'yellow'
             if df[df.cereal_name==label][allergies].sum().sum() > 0:
                 label = 'Not safe if:\n' + label
@@ -173,10 +174,14 @@ yolo = YOLO(
 # add Cloud Vision API key to environment
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../ServiceAccountToken_VisionAPI.json'
 
-# Get cereal info from DB
-s = 'select * from cereals2'
-df = pd.read_sql(s, connect_to_db())
+# Get cereal info from DB if running locally, else use csv
+if socket.gethostname() == 'ohlone':
+    s = 'select * from cereals2'
+    df = pd.read_sql(s, connect_to_db())
+else:
+    df = pd.read_csv('../cereals2_table.csv')
 
+ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg'}
 #-----------------------------------------------
 #                run app
 #-----------------------------------------------
@@ -195,17 +200,20 @@ def make_prediction():
         # Get uploaded image
         file = request.files['image']
         filename = secure_filename(file.filename)
-        print("Perry, filename: ", file)
-        img = Image.open(file).convert("RGB")
-        new_img = copy.deepcopy(img)
+        _, file_ext = os.path.splitext(filename)
+        if file_ext.lower() not in ALLOWED_EXTENSIONS:
+            return "Please upload a png, jpg, or jpeg file."
+        else:
+            img = Image.open(file).convert("RGB")
+            new_img = copy.deepcopy(img)
 
-        # process image, predict bounding boxes, predict cereal using OCR
-        prediction_results = predict(new_img, df)
+            # process image, predict bounding boxes, predict cereal using OCR
+            prediction_results = predict(new_img, df)
 
-        # generate figure with matplotlib
-        figure = generate_plot(img, prediction_results, allergies, df)
+            # generate figure with matplotlib
+            figure = generate_plot(img, prediction_results, allergies, df)
 
-        return render_template("index.html", figure = figure)
+            return render_template("index.html", figure = figure)
     else:
         return render_template('index.html')
 
@@ -216,10 +224,6 @@ def about():
 @app.route('/slides')
 def slides():
     return render_template('slides.html')
-
-@app.route('/example_images')
-def example_images():
-    return render_template('example_images.html')
 
 #-----------------------------------------------------------------------
 #
