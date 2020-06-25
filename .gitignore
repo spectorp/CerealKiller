@@ -10,5 +10,7 @@ notebooks/.ipynb_checkpoints
 *.psd
 *.pt
 *.h5
+*.docx
+*.eps
 
 .ipynb_checkpoints
