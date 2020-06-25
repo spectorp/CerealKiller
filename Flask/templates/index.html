@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <!-- Logo -->
 <span class="logo">
-  <a href=/><img src="/static/img/cerealkiller_logo.png" height="100"></a>
+  <a href=/><img src="/static/img/cerealkiller_logo2.png" height="120"></a>
   <h1><i>quickly find allergy-safe cereals</i></h1>
 </span>
 
@@ -66,11 +66,25 @@ document.addEventListener("DOMContentLoaded", function(){
       </label>
     </div>
 
-    <p>Upload your photo of cereal boxes</p>
+    <p>Upload photo of multiple cereal boxes.</p>
 
     <input type="file" name="image" value="Upload">
     <input type="submit" value="Run"> {% if label %} {{ label }} {% endif %}
   </form>
+</div>
+
+<div class="example_images">
+  <p>Here are some example images:</p>
+  <a download="example_01.jpg" href="/static/img/example_01.jpg">
+    <img src="/static/img/example_01_thumbnail.png"  height="100" style="margin:20px">
+  </a>
+  <a download="example_02.jpg" href="/static/img/example_02.jpg">
+    <img src="/static/img/example_02_thumbnail.png"  height="100" style="margin:20px">
+  </a>
+  <a download="example_03.jpg" href="/static/img/example_03.jpg">
+    <img src="/static/img/example_03_thumbnail.png"  height="100" style="margin:20px">
+  </a>
+  <p>Green = safe | Red = unsafe | Yellow = uncertain</p>
 </div>
 
 <!-- Output and spoons -->
