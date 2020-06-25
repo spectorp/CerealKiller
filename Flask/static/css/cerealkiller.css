@@ -72,6 +72,14 @@ a:hover {
 	display: block;
 }
 
+.example_images {
+	width: 59%;
+	margin-top:5px;
+	margin-bottom:5px;
+	text-align: center;
+	display: block;
+}
+
 .checkboxes {
 	margin-bottom:10px;
 }
